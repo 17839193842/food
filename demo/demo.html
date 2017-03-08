@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{padding:0px;margin:0px;}
+			body,html{height:80%;}
+			
+			li{list-style:none;}
+			#wrap{width:90%;height:90%;position:absolute;left:5%;top:5%;}
+			#wrap ul li{width:125px;height:125px;position:absolute;transition:1s left,1s top;
+			            transform:rotate(-30deg);}
+			#wrap ul li img{transform: scale(0.9);transition:1s transform;}
+			#btn{display:none;}
+			#btn input{position:fixed;top:50%;}
+			#left{left:0px;}
+			#right{right:0px;}
+		</style>
+	</head>
+	<body>
+		<div id="wrap">
+			<ul></ul>
+		</div>
+		<div id="btn">
+			<input type="button" id="left" value="左按钮">
+			<input type="button" id="right" value="右按钮">
+		</div>
+		<script src="js/jquery-1.12.1.min.js"></script>
+		<script>
+			$(function(){
+				var $wrap=$("#wrap");
+				var $ul=$("#wrap ul");
+				var $li,$img;
+				var onOff=true;
+				var index=0;
+				var $btn=$("#btn input");
+				init();
+				$li=$("#wrap ul li");
+				$img=$("#wrap ul li img");
+				 liPosition();
+				$(window).resize(liPosition);
+				liRot();
+				
+				function init(){
+					for(var i=0;i<24;i++){
+						var $li=$('<li><img src="img/'+(i+1)+'.jpg"></li>');
+						$ul.append($li);
+					}
+				}
+				
+				function liPosition(){
+					var wrapW=$wrap.width();
+					var wrapH=$wrap.height();
+					var w=(wrapW-6*125)/5;
+					var h=(wrapH-4*125)/3;
+					$li.each(function(i){
+						var iX=i%6;
+						var iY=parseInt(i/6);
+						$(this).css({
+							left:iX*125+iX*w+'px',
+							top:iY*125+h*iY+'px',
+							backgroundPosition:-125*iX+'px '+(-125*iY)+'px'
+						})
+					})
+				}
+				function liClickY(){
+					var wrapW=$wrap.width();
+					var wrapH=$wrap.height();
+					var m=(wrapW-125*6)/2;
+					var l=(wrapH-125*4)/2;
+					$li.each(function(i){
+						var iX=i%6;
+						var iY=parseInt(i/6);
+						$(this).css({
+							left:m+iX*125+'px',
+							top:l+125*iY+'px',
+							transition:'1s transform,1s left,1s top',
+							transform:'rotate(0deg)'
+						})
+					})
+				}
+				function liRot(){
+					$li.each(function(){
+						var r=(Math.random()-0.5)*60;
+						$(this).css('transform','rotate('+r+'deg)');
+					})
+				}
+				$li.click(function(){
+					if(onOff){
+					 index=$(this).index();
+					 $img.css('transform','scale(1)');
+					 setTimeout(function(){
+					 	liClickY();
+					 	$img.fadeOut(1000);
+					 	$li.css('backgroundImage','url(img/big/'+(index+1)+'.jpg)');
+					 },1000);
+					 $("#btn").show();
+					 $(window).off('resize').resize(liPosition);
+					 onOff=!onOff;
+					}
+					else{
+						$img.fadeIn(1000,function(){
+							$li.css('backgroundImage','');
+							$(this).css('transform','scale(0.9)');
+						});
+						liPosition();
+						liRot();
+						$(window).off('resize').resize(liPosition);
+						$("#btn").hide();
+						onOff=!onOff;	
+					}
+				})
+				function liBackground(){
+					var arr=[];
+					for(var i=0;i<24;i++){
+						arr[i]=i;
+					}
+					var timer=setInterval(function(){
+						var r=Math.floor(Math.random()*arr.length);
+						$li.eq(arr[r]).css('backgroundImage','url(img/big/)'+(index+1)+'.jpg');
+						arr.splice(r,1);
+						if(!arr.length){
+							clearInterval(timer);
+						}
+					},30)
+				}
+				$btn.click(function(){
+					var i=$(this).index();
+					if(i){
+						index++;
+						index%=$li.length;
+					}
+					else{
+						index--;
+						if(index==0)
+						{
+							index=$li.length-1;
+						}
+					}
+					liBackground();
+				})
+				
+			})
+		</script>
+	</body>
+</html>
